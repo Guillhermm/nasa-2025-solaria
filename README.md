@@ -39,5 +39,5 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Authors
 
-- Kauê Melo <kauemelo01>
+- Kauê Melo <kaue.cmelo@gmail.com>
 - Guilherme Almeida Zeni <guillhermm_zenni@hotmail.com, g146284@dac.unicamp.br>
