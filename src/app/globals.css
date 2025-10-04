@@ -32,3 +32,470 @@ h1 {
 h2 {
   font-size: 1.5rem;
 }
+
+.nasa-image-viewer {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #0b3c5d 0%, #1d2731 100%);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.nasa-image-viewer header {
+  text-align: center;
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.nasa-image-viewer h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+
+.nasa-image-viewer .container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+}
+
+.viewer-container {
+  position: relative;
+  width: 100%;
+  height: 70vh;
+  overflow: hidden;
+  background: #000;
+  cursor: grab;
+  touch-action: none;
+}
+
+.viewer-container:active {
+  cursor: grabbing;
+}
+
+.image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: 0 0;
+  transition: transform 0.1s ease-out;
+}
+
+.nasa-image {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.flag {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #ff4757;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: all 0.2s ease;
+}
+
+.flag:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  background: #ff6b81;
+}
+
+.flag-label {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.flag:hover .flag-label {
+  opacity: 1;
+}
+
+.minimap-flag {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ff4757;
+  border: 1px solid white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.context-menu {
+  position: fixed;
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 0;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  min-width: 150px;
+}
+
+.context-menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.context-menu-item:hover {
+  background: rgba(79, 172, 254, 0.3);
+}
+
+.flag-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  z-index: 1001;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(15px);
+  min-width: 300px;
+}
+
+.flag-modal h3 {
+  margin-bottom: 15px;
+  color: #4facfe;
+}
+
+.flag-input {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.flag-input:focus {
+  outline: none;
+  border-color: #4facfe;
+}
+
+.flag-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.modal-button.primary {
+  background: #4facfe;
+  color: white;
+}
+
+.modal-button.primary:hover {
+  background: #00f2fe;
+}
+
+.modal-button.secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.modal-button.secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-button.danger {
+  background: #ff4757;
+  color: white;
+}
+
+.modal-button.danger:hover {
+  background: #ff6b81;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.loading-overlay.active {
+  opacity: 1;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #4facfe;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.zoom-slider-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.zoom-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  outline: none;
+}
+
+.zoom-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4facfe;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.zoom-slider::-webkit-slider-thumb:hover {
+  background: #00f2fe;
+  transform: scale(1.1);
+}
+
+.zoom-input-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.zoom-input {
+  width: 70px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  text-align: center;
+}
+
+.zoom-input:focus {
+  outline: none;
+  border-color: #4facfe;
+}
+
+.nasa-image-viewer button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.nasa-image-viewer button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.nasa-image-viewer button:active {
+  transform: translateY(0);
+}
+
+.zoom-level {
+  font-size: 16px;
+  font-weight: bold;
+  min-width: 80px;
+  text-align: center;
+}
+
+.resolution-info {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-left: 20px;
+}
+
+.minimap-container {
+  position: absolute;
+  bottom: 80px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 20;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.minimap-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.8;
+}
+
+.minimap-viewport {
+  position: absolute;
+  border: 2px solid #4facfe;
+  background: rgba(79, 172, 254, 0.2);
+  cursor: move;
+  transition: all 0.1s ease;
+}
+
+.minimap-viewport:active {
+  cursor: grabbing;
+}
+
+.instructions {
+  margin-top: 20px;
+  text-align: center;
+  max-width: 800px;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+.instructions h2 {
+  margin-bottom: 10px;
+  color: #4facfe;
+}
+
+.instructions ul {
+  text-align: left;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.instructions li {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .nasa-image-viewer h1 {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .controls {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .zoom-controls {
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+  }
+  
+  .zoom-slider-container {
+    width: 100%;
+  }
+  
+  .resolution-info {
+    margin-left: 0;
+    text-align: center;
+  }
+  
+  .minimap-container {
+    width: 150px;
+    height: 112px;
+    bottom: 70px;
+    right: 10px;
+  }
+  
+  .flag-modal {
+    min-width: 250px;
+    margin: 0 10px;
+  }
+}
