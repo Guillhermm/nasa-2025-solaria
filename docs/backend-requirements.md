@@ -62,9 +62,14 @@ Allow users to:
 
 ## Architecture (MVP – 1 Day Scope)
 
+![MVP BE Architecture](./assets/be-arch-mvp.png)
+
+
 ---
 
 ## Architecture (Future – AI Search, Temporal, Overlays)
+
+![MVP BE Architecture](./assets/be-arch-future.png)
 
 ---
 
