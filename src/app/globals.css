@@ -83,7 +83,7 @@ h2 {
 .viewer-container {
   position: relative;
   width: 100%;
-  height: 70vh;
+  height: 60vh;
   overflow: hidden;
   background: #000;
   cursor: grab;
@@ -118,8 +118,8 @@ h2 {
 
 .flag {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
   background: #ff4757;
   border: 2px solid white;
   border-radius: 50%;
@@ -135,16 +135,22 @@ h2 {
   background: #ff6b81;
 }
 
+.flag-selected {
+  background: #4facfe !important;
+  border-color: #00f2fe !important;
+  box-shadow: 0 0 0 2px #00f2fe, 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
 .flag-label {
   position: absolute;
-  top: -30px;
+  top: -25px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.8);
   color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 11px;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
@@ -157,14 +163,153 @@ h2 {
 
 .minimap-flag {
   position: absolute;
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   background: #ff4757;
   border: 1px solid white;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   z-index: 6;
   pointer-events: none;
+}
+
+.minimap-flag-selected {
+  background: #4facfe !important;
+  border-color: #00f2fe !important;
+  box-shadow: 0 0 0 1px #00f2fe;
+}
+
+/* Flags Table Styles */
+.flags-table-container {
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.flags-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.flags-table-header h3 {
+  color: #4facfe;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.export-button, .clear-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.export-button:hover:not(:disabled), .clear-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.export-button:disabled, .clear-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.clear-button {
+  background: rgba(255, 71, 87, 0.2);
+  border-color: rgba(255, 71, 87, 0.3);
+}
+
+.clear-button:hover:not(:disabled) {
+  background: rgba(255, 71, 87, 0.3);
+}
+
+.flags-table-wrapper {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+}
+
+.flags-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.flags-table th {
+  background: rgba(79, 172, 254, 0.2);
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.flags-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+}
+
+.action-column {
+  width: 40px;
+  text-align: center;
+  padding: 8px 4px !important;
+}
+
+.delete-button {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.delete-button:hover {
+  color: #ff4757;
+  background: rgba(255, 71, 87, 0.1);
+  transform: scale(1.1);
+}
+
+.flags-table tr {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.flags-table tr:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.table-row-selected {
+  background: rgba(79, 172, 254, 0.3) !important;
+  color: #00f2fe;
+}
+
+.no-flags-message {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  padding: 20px;
 }
 
 .context-menu {
@@ -182,7 +327,7 @@ h2 {
 .context-menu-item {
   padding: 8px 16px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease;
   font-size: 14px;
 }
 
@@ -404,7 +549,7 @@ h2 {
 
 .minimap-container {
   position: absolute;
-  bottom: 80px;
+  bottom: 20px;
   right: 20px;
   width: 200px;
   height: 150px;
@@ -433,29 +578,6 @@ h2 {
 
 .minimap-viewport:active {
   cursor: grabbing;
-}
-
-.instructions {
-  margin-top: 20px;
-  text-align: center;
-  max-width: 800px;
-  line-height: 1.6;
-  opacity: 0.8;
-}
-
-.instructions h2 {
-  margin-bottom: 10px;
-  color: #4facfe;
-}
-
-.instructions ul {
-  text-align: left;
-  display: inline-block;
-  margin-top: 10px;
-}
-
-.instructions li {
-  margin-bottom: 8px;
 }
 
 @media (max-width: 768px) {
@@ -490,12 +612,27 @@ h2 {
   .minimap-container {
     width: 150px;
     height: 112px;
-    bottom: 70px;
+    bottom: 90px;
     right: 10px;
   }
-  
-  .flag-modal {
-    min-width: 250px;
-    margin: 0 10px;
+
+  .flags-table-container {
+    padding: 10px 15px;
+    margin-right: 170px;
+  }
+
+  .flags-table-wrapper {
+    max-height: 120px;
+  }
+
+  .flags-table-header {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .export-buttons {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
