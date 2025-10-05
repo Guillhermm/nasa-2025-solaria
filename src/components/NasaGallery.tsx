@@ -61,12 +61,12 @@ export default function NasaGallery({
   const renderModeSelector = () => {
     const modes: VisualMode[] = ["normal", "infrared", "uv"];
     return (
-      <ButtonGroup className="rounded-0">
+      <ButtonGroup className="d-flex rounded-0">
         {modes.map((m) => (
           <Button
             key={m}
             variant={mode === m ? "danger" : "outline-danger"}
-            className="border-2 rounded-0 fw-bold text-uppercase"
+            className="flex-fill border-2 rounded-0 fw-bold text-uppercase"
             onClick={() => setMode(m)}
           >
             {m.charAt(0).toUpperCase() + m.slice(1)}

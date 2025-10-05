@@ -754,6 +754,11 @@ h2 {
   filter: hue-rotate(200deg) brightness(1.2) saturate(1.4);
 }
 
+.flex-fill {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
 .h-400px {
   height: 400px;
 }
