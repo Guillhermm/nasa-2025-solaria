@@ -43,16 +43,6 @@ body.theme-loaded {
   --text-color: #e0e0e0;
 }
 
-/* body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-} */
-main {
-  min-width: 100% !important;
-  height: auto !important;
-}
-
 h1 {
   font-size: 2rem;
 }
@@ -663,4 +653,38 @@ h2 {
     width: 100%;
     justify-content: flex-start;
   }
+}
+
+.mode-normal img, .mode-normal .viewer-tile {
+  filter: none;
+}
+
+.mode-infrared img, .mode-infrared .viewer-tile {
+  filter: invert(1) hue-rotate(90deg) contrast(1.5);
+}
+
+.mode-uv img, .mode-uv .viewer-tile {
+  filter: hue-rotate(200deg) brightness(1.2) saturate(1.4);
+}
+
+/* Highlight selected thumbnail */
+.thumbnail-selected {
+  border: 0.25rem solid #da251d;
+}
+
+.thumbnail-img {
+  object-fit: cover;
+  width: 100%;
+  height: auto;
+}
+
+/* Visual mode filters */
+.mode-infrared .gallery-main-img,
+.mode-infrared .thumbnail-img {
+  filter: invert(1) hue-rotate(90deg) contrast(1.5);
+}
+
+.mode-uv .gallery-main-img,
+.mode-uv .thumbnail-img {
+  filter: hue-rotate(200deg) brightness(1.2) saturate(1.4);
 }

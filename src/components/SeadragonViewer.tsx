@@ -286,7 +286,7 @@ export default function SeadragonViewer({
           id="reset"
           onClick={handleReset}
           size="lg"
-          className="btn btn-danger text-uppercase fw-bold"
+          className="btn btn-danger rounded-0 text-uppercase fw-bold"
         >
           Reset View
         </Button>
