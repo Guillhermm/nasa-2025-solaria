@@ -15,17 +15,15 @@ const ThemeSwitcher = () => {
   return (
     <Nav.Link
       onClick={toggleTheme}
-      className="theme-switcher d-flex align-items-center gap-2 d-flex align-items-center"
+      className="text-white theme-switcher d-flex align-items-center gap-2 d-flex align-items-center p-2"
     >
       {theme === 'light' ? (
         <>
-          <BsMoon size={20} />
-          <span className="d-lg-none">Dark Theme</span>
+          <BsMoon size={24} />
         </>
       ) : (
         <>
-          <BsSun size={20} />
-          <span className="d-lg-none">Light Theme</span>
+          <BsSun size={24} />
         </>
       )}
     </Nav.Link>

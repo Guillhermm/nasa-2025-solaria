@@ -31,18 +31,9 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto">
-              {/* Use Link for routing to pages */}
-              {/* <Nav.Link as={Link} to="/">
-                {t('pages.home.title')}
-              </Nav.Link> */}
-              <div className="d-lg-flex justify-content-lg-center align-items-lg-center">
-                <ThemeSwitcher />
-              </div>
-            </Nav>
-          </Navbar.Collapse>
+          <div className="d-lg-flex justify-content-lg-center align-items-lg-center">
+            <ThemeSwitcher />
+          </div>
         </div>
       </Navbar>
     </header>
