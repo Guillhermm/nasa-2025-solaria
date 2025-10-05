@@ -1,7 +1,7 @@
 "use client";
 
-import SpectralGallery from "./SpectralGallery";
-import SeadragonViewer from "./SeadragonViewer";
+import SpectralGallery from "./Tools/SpectralGallery";
+import DeepViewer from "./Tools/DeepViewer";
 import SectionDivider from "./SectionDivider";
 
 export default function MainContent() {
@@ -26,7 +26,7 @@ export default function MainContent() {
   return (
     <>
       <SectionDivider />
-      <SeadragonViewer title="1. Deep Viewer" id="hubble-mosaic-high" />
+      <DeepViewer title="1. Deep Viewer" id="hubble-mosaic-high" />
       <SectionDivider />
       <SpectralGallery title="2. Spectral Gallery" images={sampleImages} />
     </>

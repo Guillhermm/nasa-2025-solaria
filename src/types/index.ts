@@ -30,6 +30,13 @@ export interface Position {
   y: number;
 }
 
+export interface DeepViewerProps {
+  title: string;
+  id: string;
+  initialFlags?: Flag[];
+  onFlagsChange?: (flags: Flag[]) => void;
+}
+
 // Spectral Gallery types and interfaces
 export type VisualMode = "normal" | "infrared" | "uv";
 

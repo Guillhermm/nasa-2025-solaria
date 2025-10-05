@@ -2,22 +2,15 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import OpenSeadragon from "openseadragon";
-import { Flag, ImageMeta, Position } from "@/types";
 import { Button } from "react-bootstrap";
+import { DeepViewerProps, Flag, ImageMeta, Position } from "@/types";
 
-interface SeadragonViewerProps {
-  title: string;
-  id: string;
-  initialFlags?: Flag[];
-  onFlagsChange?: (flags: Flag[]) => void;
-}
-
-export default function SeadragonViewer({
+export default function DeepViewer({
   title,
   id,
   initialFlags = [],
   onFlagsChange,
-}: SeadragonViewerProps) {
+}: DeepViewerProps) {
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [flags, setFlags] = useState<Flag[]>(initialFlags);
@@ -245,7 +238,7 @@ export default function SeadragonViewer({
     <>
       <h3>{title}</h3>
 
-      <div className="image-viewer-container position-relative">
+      <div className="deep-viewer-container position-relative">
         <div className="w-100 h-400px my-4 h-500px">
           <div ref={containerRef} className="w-100 h-400px bg-black h-100" />
         </div>
