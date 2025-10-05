@@ -538,9 +538,13 @@ h2 {
   flex: 1;
   -webkit-appearance: none;
   height: 6px;
-  background: rgba(255, 255, 255, 0.2);
+  background: #ccc;
   border-radius: 3px;
   outline: none;
+}
+
+[data-theme='dark'] .zoom-slider {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .zoom-slider::-webkit-slider-thumb {
@@ -548,14 +552,23 @@ h2 {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #4facfe;
+  background: #dc3545;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
+[data-theme='dark'] .zoom-slider::-webkit-slider-thumb {
+  background: #cf6679;
+}
+
 .zoom-slider::-webkit-slider-thumb:hover {
-  background: #00f2fe;
+  background: #b31e17;
   transform: scale(1.1);
+}
+
+
+[data-theme='dark'] .zoom-slider::-webkit-slider-thumb:hover {
+  background: #e65346;
 }
 
 .zoom-input-container {
