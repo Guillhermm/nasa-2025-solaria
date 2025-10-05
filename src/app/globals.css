@@ -764,7 +764,11 @@ h2 {
 }
 
 @media (min-width: 768px) {
-  .h-500px {
+  .h-md-500px {
     height: 500px;
+  }
+
+  .h-md-700px {
+    height: 700px;
   }
 }

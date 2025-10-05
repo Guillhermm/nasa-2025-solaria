@@ -238,9 +238,8 @@ export default function DeepViewer({
     <>
       <h3>{title}</h3>
       <div className="mb-4">Explore every detail, without waiting: our Deep Viewer splits massive images into many small tiles, loading only what you need at your current view. Zoom, pan, or select areas, in which the system will quickly fetch just the right pieces, so you see crisp detail fast, without overloading your browser or network. It is designed to be fast, responsive, and intuitive, so you can spend more time discovering and less time waiting.</div>
-
       <div className="deep-viewer-container position-relative">
-        <div className="w-100 h-400px my-4 h-500px">
+        <div className="w-100 h-400px my-4 h-md-500px">
           <div ref={containerRef} className="w-100 h-400px bg-black h-100" />
         </div>
         {/* Zoom / control buttons */}

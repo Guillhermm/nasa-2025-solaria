@@ -10,6 +10,7 @@
     "generate-tiles": "tsx scripts/generate-tiles.ts"
   },
   "dependencies": {
+    "@img-comparison-slider/react": "^8.0.2",
     "bootstrap": "^5.3.8",
     "next": "15.5.4",
     "openseadragon": "^5.0.1",

@@ -1,6 +1,7 @@
 import { Container } from "@/components/Container";
 import SectionDivider from "@/components/SectionDivider";
 import DeepViewer from "@/components/tools/DeepViewer";
+import ImageComparisonSlider from "@/components/tools/ImageComparisonSlider";
 import SpectralGallery from "@/components/tools/SpectralGallery";
 
 export default function Home() {
@@ -20,7 +21,22 @@ export default function Home() {
       title: "Neptune (PIA01492)",
       url: "https://images-assets.nasa.gov/image/PIA01492/PIA01492~orig.jpg",
     },
-  ]; 
+  ];
+
+  const comparisonImages = [
+    {
+      src: "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2025/07/STScI-01K0W69T4CK5TD4EZF8RCRRJ2Z.png",
+      alt: "Image 1",
+      title: "Before",
+      slot: "first",
+    },
+    {
+      src: "https://assets.science.nasa.gov/dynamicimage/assets/science/missions/webb/science/2025/07/STScI-01K0W7HK9320DCD8PTZQ55FKWV.png",
+      alt: "Image 2",
+      title: "After",
+      slot: "second",
+    },
+  ];
 
   return (
     <Container>
@@ -39,7 +55,12 @@ export default function Home() {
       <SectionDivider />
       <DeepViewer title="1. Deep Viewer" id="hubble-mosaic-high" />
       <SectionDivider />
-      <SpectralGallery title="2. Spectral Gallery" images={sampleImages} />
+      <ImageComparisonSlider
+        title="2. Comparison Slider"
+        images={comparisonImages}
+      />
+      <SectionDivider />
+      <SpectralGallery title="3. Spectral Gallery" images={sampleImages} />
     </Container>
   );
 }
