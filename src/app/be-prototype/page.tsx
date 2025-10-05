@@ -1,12 +1,40 @@
-import React from "react";
+"use client";
+
+import { Fragment, useEffect, useState } from "react";
+import dynamic from 'next/dynamic';
 import Image from "next/image";
+import { ImageMeta } from "../../types";
+
+const ImageViewerClient = dynamic(
+  () => import('@/components/ImageViewer'),
+  { ssr: false }
+);
 
 export default function BEPrototype() {
+  const [images, setImages] = useState<ImageMeta[]>([]);
+
+  useEffect(() => {
+    fetch("/api/images")
+      .then((res) => res.json())
+      .then((data) => {
+        setImages(data);
+      });
+  }, []);
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[16px] row-start-2 items-center sm:items-start">
         <div className="container max-w-3xl">
-         Zeni
+          <ul>
+            {images.map((img) => (
+              <Fragment key={img.id}>
+                <h2>
+                  {img.name} — {img.mission} — {img.timestamp}
+                </h2>
+                <ImageViewerClient id={img.id} />
+              </Fragment>
+            ))}
+          </ul>
         </div>
       </main>
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
