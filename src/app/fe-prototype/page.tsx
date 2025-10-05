@@ -44,6 +44,7 @@ const NASAImageViewer: React.FC = () => {
   const minimapImageRef = useRef<HTMLImageElement>(null);
   const minimapViewportRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   // State
   const [scale, setScale] = useState<number>(1);
@@ -115,6 +116,34 @@ const NASAImageViewer: React.FC = () => {
       // Fallback for browsers that don't support fullscreen API
       alert('Fullscreen mode is not supported by your browser.');
     }
+  }, []);
+
+  // Context menu positioning fix for fullscreen
+  const positionContextMenu = useCallback((clientX: number, clientY: number) => {
+    if (!contextMenuRef.current) return;
+
+    const menu = contextMenuRef.current;
+    const rect = menu.getBoundingClientRect();
+    
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Calculate position with boundary checking
+    let x = clientX;
+    let y = clientY;
+    
+    // Ensure context menu stays within viewport bounds
+    if (x + rect.width > viewportWidth) {
+      x = viewportWidth - rect.width - 10;
+    }
+    if (y + rect.height > viewportHeight) {
+      y = viewportHeight - rect.height - 10;
+    }
+    if (x < 10) x = 10;
+    if (y < 10) y = 10;
+    
+    setContextMenuPosition({ x, y });
   }, []);
 
   // Generate unique ID for flags
@@ -397,7 +426,6 @@ const NASAImageViewer: React.FC = () => {
   }, []);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
     const direction = e.deltaY > 0 ? -1 : 1;
     zoom(direction, e.clientX, e.clientY);
   }, [zoom]);
@@ -425,10 +453,11 @@ const NASAImageViewer: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    setContextMenuPosition({ x: e.clientX, y: e.clientY });
+    // Use the fixed positioning function
+    positionContextMenu(e.clientX, e.clientY);
     setContextMenuFlag(flag);
     setShowContextMenu(true);
-  }, []);
+  }, [positionContextMenu]);
 
   const handleFlagClick = useCallback((e: React.MouseEvent, flag: Flag) => {
     e.stopPropagation();
@@ -621,7 +650,7 @@ const NASAImageViewer: React.FC = () => {
   );
 
   return (
-    <div className="nasa-image-viewer">
+    <div className="nasa-image-viewer w-100">
       <header>
         <div className="header-content">
           <div className="header-text">
@@ -837,11 +866,17 @@ const NASAImageViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Context Menu */}
+      {/* Context Menu - Fixed positioning for fullscreen */}
       {showContextMenu && contextMenuFlag && (
         <div 
+          ref={contextMenuRef}
           className="context-menu"
-          style={{ left: contextMenuPosition.x, top: contextMenuPosition.y }}
+          style={{ 
+            position: 'fixed',
+            left: contextMenuPosition.x,
+            top: contextMenuPosition.y,
+            zIndex: 10000 // Ensure it's above everything in fullscreen
+          }}
         >
           <div 
             className="context-menu-item"
@@ -865,658 +900,6 @@ const NASAImageViewer: React.FC = () => {
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .nasa-image-viewer {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-          background: linear-gradient(135deg, #0b3c5d 0%, #1d2731 100%);
-          color: #fff;
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 20px;
-        }
-
-        header {
-          text-align: center;
-          margin-bottom: 30px;
-          width: 100%;
-          max-width: 1200px;
-        }
-
-        .header-content {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          gap: 20px;
-        }
-
-        .header-text {
-          flex: 1;
-        }
-
-        h1 {
-          font-size: 2.5rem;
-          margin-bottom: 10px;
-          background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .subtitle {
-          font-size: 1.2rem;
-          opacity: 0.8;
-          margin-bottom: 0;
-        }
-
-        .fullscreen-button {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: white;
-          padding: 10px 16px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-size: 0.9rem;
-          transition: all 0.2s ease;
-          white-space: nowrap;
-        }
-
-        .fullscreen-button:hover {
-          background: rgba(255, 255, 255, 0.2);
-          transform: translateY(-2px);
-        }
-
-        .container {
-          display: flex;
-          flex-direction: column;
-          width: 100%;
-          max-width: 1200px;
-          background: rgba(255, 255, 255, 0.05);
-          border-radius: 15px;
-          overflow: hidden;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-          backdrop-filter: blur(10px);
-          position: relative;
-        }
-
-        .viewer-container {
-          position: relative;
-          width: 100%;
-          height: 60vh;
-          overflow: hidden;
-          background: #000;
-          cursor: grab;
-          touch-action: none;
-        }
-
-        .viewer-container:active {
-          cursor: grabbing;
-        }
-
-        .image-container {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          transform-origin: 0 0;
-          transition: transform 0.1s ease-out;
-        }
-
-        .nasa-image {
-          display: block;
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          user-select: none;
-          -webkit-user-drag: none;
-        }
-
-        .flag {
-          position: absolute;
-          width: 10px;
-          height: 10px;
-          background: #ff4757;
-          border: 2px solid white;
-          border-radius: 50%;
-          cursor: pointer;
-          transform: translate(-50%, -50%);
-          z-index: 5;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-          transition: all 0.2s ease;
-        }
-
-        .flag:hover {
-          transform: translate(-50%, -50%) scale(1.2);
-          background: #ff6b81;
-        }
-
-        .flag-selected {
-          background: #4facfe !important;
-          border-color: #00f2fe !important;
-          box-shadow: 0 0 0 2px #00f2fe, 0 2px 8px rgba(0, 0, 0, 0.5);
-        }
-
-        .flag-label {
-          position: absolute;
-          top: -25px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(0, 0, 0, 0.8);
-          color: white;
-          padding: 3px 6px;
-          border-radius: 3px;
-          font-size: 11px;
-          white-space: nowrap;
-          pointer-events: none;
-          opacity: 0;
-          transition: opacity 0.2s ease;
-        }
-
-        .flag:hover .flag-label {
-          opacity: 1;
-        }
-
-        .minimap-flag {
-          position: absolute;
-          width: 4px;
-          height: 4px;
-          background: #ff4757;
-          border: 1px solid white;
-          border-radius: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 6;
-          pointer-events: none;
-        }
-
-        .minimap-flag-selected {
-          background: #4facfe !important;
-          border-color: #00f2fe !important;
-          box-shadow: 0 0 0 1px #00f2fe;
-        }
-
-        /* Zoom Controls Section */
-        .zoom-controls-section {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 15px 20px;
-          background: rgba(0, 0, 0, 0.3);
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          gap: 20px;
-        }
-
-        .zoom-slider-container {
-          flex: 1;
-          display: flex;
-          align-items: center;
-          gap: 15px;
-          min-width: 300px;
-        }
-
-        .zoom-slider {
-          flex: 1;
-          -webkit-appearance: none;
-          height: 6px;
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 3px;
-          outline: none;
-        }
-
-        .zoom-slider::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background: #4facfe;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .zoom-slider::-webkit-slider-thumb:hover {
-          background: #00f2fe;
-          transform: scale(1.1);
-        }
-
-        .zoom-input-container {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          min-width: 150px;
-        }
-
-        .zoom-input {
-          width: 70px;
-          padding: 8px 12px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 5px;
-          color: white;
-          font-size: 16px;
-          text-align: center;
-        }
-
-        .zoom-input:focus {
-          outline: none;
-          border-color: #4facfe;
-        }
-
-        #reset {
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: white;
-          padding: 8px 15px;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          font-size: 16px;
-          min-width: 120px;
-        }
-
-        #reset:hover {
-          background: rgba(255, 255, 255, 0.2);
-          transform: translateY(-2px);
-        }
-
-        #reset:active {
-          transform: translateY(0);
-        }
-
-        .resolution-info {
-          font-size: 14px;
-          opacity: 0.8;
-          min-width: 200px;
-          text-align: right;
-        }
-
-        /* Flags Table Styles */
-        .flags-table-container {
-          padding: 15px 20px;
-          background: rgba(0, 0, 0, 0.3);
-          margin-right: 220px;
-        }
-
-        .flags-table-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 10px;
-        }
-
-        .flags-table-header h3 {
-          color: #4facfe;
-          font-size: 1.1rem;
-          margin: 0;
-        }
-
-        .export-buttons {
-          display: flex;
-          gap: 8px;
-        }
-
-        .export-button, .clear-button {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: white;
-          padding: 6px 12px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 0.85rem;
-          transition: all 0.2s ease;
-        }
-
-        .export-button:hover:not(:disabled), .clear-button:hover:not(:disabled) {
-          background: rgba(255, 255, 255, 0.2);
-          transform: translateY(-1px);
-        }
-
-        .export-button:disabled, .clear-button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-          transform: none;
-        }
-
-        .clear-button {
-          background: rgba(255, 71, 87, 0.2);
-          border-color: rgba(255, 71, 87, 0.3);
-        }
-
-        .clear-button:hover:not(:disabled) {
-          background: rgba(255, 71, 87, 0.3);
-        }
-
-        .flags-table-wrapper {
-          max-height: 150px;
-          overflow-y: auto;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 6px;
-        }
-
-        .flags-table {
-          width: 100%;
-          border-collapse: collapse;
-          background: rgba(255, 255, 255, 0.05);
-        }
-
-        .flags-table th {
-          background: rgba(79, 172, 254, 0.2);
-          padding: 10px 12px;
-          text-align: left;
-          font-weight: 600;
-          font-size: 0.9rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .flags-table td {
-          padding: 8px 12px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          font-size: 0.9rem;
-        }
-
-        .action-column {
-          width: 40px;
-          text-align: center;
-          padding: 8px 4px !important;
-        }
-
-        .delete-button {
-          background: transparent;
-          border: none;
-          color: rgba(255, 255, 255, 0.6);
-          cursor: pointer;
-          padding: 4px;
-          border-radius: 3px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-        }
-
-        .delete-button:hover {
-          color: #ff4757;
-          background: rgba(255, 71, 87, 0.1);
-          transform: scale(1.1);
-        }
-
-        .flags-table tr {
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-        }
-
-        .flags-table tr:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
-
-        .table-row-selected {
-          background: rgba(79, 172, 254, 0.3) !important;
-          color: #00f2fe;
-        }
-
-        .no-flags-message {
-          text-align: center;
-          color: rgba(255, 255, 255, 0.6);
-          font-style: italic;
-          padding: 20px;
-        }
-
-        .context-menu {
-          position: fixed;
-          background: rgba(30, 30, 30, 0.95);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 8px;
-          padding: 8px 0;
-          z-index: 1000;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(10px);
-          min-width: 150px;
-        }
-
-        .context-menu-item {
-          padding: 8px 16px;
-          cursor: pointer;
-          transition: background 0.2s ease;
-          font-size: 14px;
-        }
-
-        .context-menu-item:hover {
-          background: rgba(79, 172, 254, 0.3);
-        }
-
-        .flag-modal {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: rgba(30, 30, 30, 0.95);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 12px;
-          padding: 20px;
-          z-index: 1001;
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-          backdrop-filter: blur(15px);
-          min-width: 300px;
-        }
-
-        .flag-modal h3 {
-          margin-bottom: 15px;
-          color: #4facfe;
-        }
-
-        .flag-input {
-          width: 100%;
-          padding: 10px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 6px;
-          color: white;
-          font-size: 14px;
-          margin-bottom: 15px;
-        }
-
-        .flag-input:focus {
-          outline: none;
-          border-color: #4facfe;
-        }
-
-        .flag-modal-buttons {
-          display: flex;
-          justify-content: flex-end;
-          gap: 10px;
-        }
-
-        .modal-button {
-          padding: 8px 16px;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          font-size: 14px;
-          transition: all 0.2s ease;
-        }
-
-        .modal-button.primary {
-          background: #4facfe;
-          color: white;
-        }
-
-        .modal-button.primary:hover {
-          background: #00f2fe;
-        }
-
-        .modal-button.secondary {
-          background: rgba(255, 255, 255, 0.1);
-          color: white;
-        }
-
-        .modal-button.secondary:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-
-        .modal-button.danger {
-          background: #ff4757;
-          color: white;
-        }
-
-        .modal-button.danger:hover {
-          background: #ff6b81;
-        }
-
-        .loading-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: rgba(0, 0, 0, 0.7);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          z-index: 10;
-          opacity: 0;
-          transition: opacity 0.3s;
-          pointer-events: none;
-        }
-
-        .loading-overlay.active {
-          opacity: 1;
-        }
-
-        .spinner {
-          width: 50px;
-          height: 50px;
-          border: 5px solid rgba(255, 255, 255, 0.3);
-          border-radius: 50%;
-          border-top-color: #4facfe;
-          animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-
-        .minimap-container {
-          position: absolute;
-          bottom: 100px;
-          right: 20px;
-          width: 200px;
-          height: 150px;
-          background: rgba(0, 0, 0, 0.7);
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 8px;
-          overflow: hidden;
-          z-index: 20;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        .minimap-image {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          opacity: 0.8;
-        }
-
-        .minimap-viewport {
-          position: absolute;
-          border: 2px solid #4facfe;
-          background: rgba(79, 172, 254, 0.2);
-          cursor: move;
-          transition: all 0.1s ease;
-        }
-
-        .minimap-viewport:active {
-          cursor: grabbing;
-        }
-
-        @media (max-width: 768px) {
-          h1 {
-            font-size: 2rem;
-          }
-          
-          .subtitle {
-            font-size: 1rem;
-          }
-
-          .header-content {
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-          }
-
-          .fullscreen-button {
-            align-self: center;
-          }
-          
-          .zoom-controls-section {
-            flex-direction: column;
-            gap: 15px;
-            padding: 15px;
-          }
-          
-          .zoom-slider-container {
-            width: 100%;
-            min-width: auto;
-          }
-          
-          .resolution-info {
-            text-align: center;
-            min-width: auto;
-          }
-          
-          .minimap-container {
-            width: 150px;
-            height: 112px;
-            bottom: 90px;
-            right: 10px;
-          }
-
-          .flags-table-container {
-            padding: 10px 15px;
-            margin-right: 170px;
-          }
-
-          .flags-table-wrapper {
-            max-height: 120px;
-          }
-
-          .flags-table-header {
-            flex-direction: column;
-            gap: 10px;
-            align-items: flex-start;
-          }
-
-          .export-buttons {
-            width: 100%;
-            justify-content: flex-start;
-          }
-        }
-
-        /* Fullscreen styles */
-        :global(:fullscreen) .container {
-          max-width: none;
-          border-radius: 0;
-          height: 100vh;
-        }
-
-        :global(:fullscreen) .viewer-container {
-          height: 70vh;
-        }
-
-        :global(:fullscreen) .zoom-controls-section {
-          padding: 20px;
-        }
-      `}</style>
     </div>
   );
 };
