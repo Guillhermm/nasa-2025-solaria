@@ -59,7 +59,7 @@ export default function NasaGallery({
   const renderModeSelector = () => {
     const modes: VisualMode[] = ["normal", "infrared", "uv"];
     return (
-      <ButtonGroup className="mb-1 rounded-0">
+      <ButtonGroup className="rounded-0">
         {modes.map((m) => (
           <Button
             key={m}
@@ -123,7 +123,7 @@ export default function NasaGallery({
                         variant="top"
                         src={img.thumbnailUrl ?? img.url}
                         alt={img.title}
-                        className="thumbnail-img"
+                        className="thumbnail-img rounded-0"
                       />
                     </Card>
                   </Col>

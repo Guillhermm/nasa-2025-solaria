@@ -51,6 +51,54 @@ h2 {
   font-size: 1.5rem;
 }
 
+.bg-danger {
+  background-color: #da251d !important;
+}
+
+[data-theme='dark'] .bg-danger {
+  background-color: #cf6679 !important;
+}
+
+.btn-danger {
+  --bs-btn-bg: #da251d;
+  --bs-btn-border-color: #da251d;
+  --bs-btn-active-bg: #b31e17;
+  --bs-btn-active-border-color: #b31e17;
+  --bs-btn-focus-bg: #b31e17;
+  --bs-btn-focus-border-color: #b31e17;
+  --bs-btn-hover-bg: #b31e17;
+  --bs-btn-hover-border-color: #b31e17;
+}
+
+[data-theme='dark'] .btn-danger {
+  --bs-btn-bg: #cf6679;
+  --bs-btn-border-color: #cf6679;
+  --bs-btn-active-bg: #e65346;
+  --bs-btn-active-border-color: #e65346;
+  --bs-btn-focus-bg: #e65346;
+  --bs-btn-focus-border-color: #e65346;
+  --bs-btn-hover-bg: #e65346;
+  --bs-btn-hover-border-color: #e65346;
+}
+
+.btn-group .btn:hover {
+  background-color: #b31e17;
+  border-color: #b31e17;
+}
+
+[data-theme='dark'] .btn-group .btn:hover {
+  background-color: #e65346;
+  border-color: #e65346;
+}
+
+.btn-group .btn-outline-danger {
+  --bs-btn-border-color: #dc3545;
+}
+
+[data-theme='dark'] .btn-group .btn--outline-danger {
+  --bs-btn-border-color: #cf6679;
+}
+
 .nasa-image-viewer {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, #0b3c5d 0%, #1d2731 100%);
@@ -670,6 +718,10 @@ h2 {
 /* Highlight selected thumbnail */
 .thumbnail-selected {
   border: 0.25rem solid #da251d;
+}
+
+[data-theme='dark'] .thumbnail-selected {
+  border-color: #cf6679;
 }
 
 .thumbnail-img {
