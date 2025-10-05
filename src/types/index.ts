@@ -10,7 +10,7 @@ export interface ImageMeta {
   maxLevel: number;
 }
 
-// Types
+// Deep Viewer types and interfaces
 export interface ImageResolution {
   level: number;
   name: string;
@@ -28,4 +28,21 @@ export interface Flag {
 export interface Position {
   x: number;
   y: number;
+}
+
+// Spectral Gallery types and interfaces
+export type VisualMode = "normal" | "infrared" | "uv";
+
+export interface NasaImage {
+  id: string;
+  title: string;
+  url: string;
+  thumbnailUrl?: string;
+}
+
+export interface SpectralGalleryProps {
+  title: string;
+  images: NasaImage[];
+  initialMode?: VisualMode;
+  initialImageId?: string;
 }

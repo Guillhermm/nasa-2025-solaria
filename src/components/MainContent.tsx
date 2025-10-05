@@ -1,6 +1,6 @@
 "use client";
 
-import NasaGallery from "./NasaGallery";
+import SpectralGallery from "./SpectralGallery";
 import SeadragonViewer from "./SeadragonViewer";
 import SectionDivider from "./SectionDivider";
 
@@ -28,7 +28,7 @@ export default function MainContent() {
       <SectionDivider />
       <SeadragonViewer title="1. Deep Viewer" id="hubble-mosaic-high" />
       <SectionDivider />
-      <NasaGallery title="2. Spectral Gallery" images={sampleImages} />
+      <SpectralGallery title="2. Spectral Gallery" images={sampleImages} />
     </>
   );
 }
