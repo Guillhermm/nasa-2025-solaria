@@ -73,15 +73,19 @@ export default function SeadragonViewer({
       showRotationControl: false,
       autoHideControls: false,
     });
+
     viewerRef.current = viewer;
 
-    // Listen to viewport changes
+    // Listen to viewport-change to sync UI
     viewer.addHandler("viewport-change", () => {
       const vp = viewer.viewport;
+      const z = vp.getZoom(); // this is the internal zoom factor (logical units)
+      // convert to percent or scale as you prefer
+      const zoomPct = z * 100;
+      setScale(zoomPct / 100); // or setScale(z) depending how you interpret it
+      // Optionally update center / position if needed
       const c = vp.getCenter();
-      const z = vp.getZoom();
       setCenter({ x: c.x, y: c.y });
-      // handleZoomTo(z);
     });
 
     // Canvas click (to add flags / context menu)
@@ -226,10 +230,9 @@ export default function SeadragonViewer({
   const handleZoomTo = (percent: number) => {
     if (!viewerRef.current) return;
     const vp = viewerRef.current.viewport;
-    const zoomFactor = percent / 100; // depends on your scale system
+    const zoomFactor = percent / 100;
     vp.zoomTo(zoomFactor, vp.getCenter(), true);
-    // Update UI
-    setScale(zoomFactor);
+
   };
 
   const handleReset = () => {
