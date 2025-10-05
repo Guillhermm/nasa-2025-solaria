@@ -1,7 +1,10 @@
 import React from "react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { ThemeProviderClient } from "@/context/ThemeProviderClient";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,6 +22,7 @@ export const metadata: Metadata = {
   description: "Embiggen Your Eyes App",
 };
 
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,9 +31,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased d-flex flex-column`}
       >
-        {children}
+        <ThemeProviderClient>
+          <Header />
+          <main className="flex-grow-1 d-flex flex-column gap-3 align-items-start">
+            {children}
+          </main>
+          <Footer />
+        </ThemeProviderClient>
       </body>
     </html>
   );

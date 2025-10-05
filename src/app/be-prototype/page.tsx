@@ -1,14 +1,13 @@
 "use client";
 
 import { Fragment, useEffect, useState } from "react";
-import dynamic from 'next/dynamic';
-import Image from "next/image";
+import dynamic from "next/dynamic";
+import { Container } from "@/components/Container";
 import { ImageMeta } from "../../types";
 
-const ImageViewerClient = dynamic(
-  () => import('@/components/ImageViewer'),
-  { ssr: false }
-);
+const ImageViewerClient = dynamic(() => import("@/components/ImageViewer"), {
+  ssr: false,
+});
 
 export default function BEPrototype() {
   const [images, setImages] = useState<ImageMeta[]>([]);
@@ -22,53 +21,15 @@ export default function BEPrototype() {
   }, []);
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[16px] row-start-2 items-center sm:items-start">
-        <div className="container max-w-3xl">
-          <ul>
-            {images.map((img) => (
-              <Fragment key={img.id}>
-                <h2>
-                  {img.name} — {img.mission} — {img.timestamp}
-                </h2>
-                <ImageViewerClient id={img.id} />
-              </Fragment>
-            ))}
-          </ul>
+    <Container>
+      {images.map((img) => (
+        <div key={img.id}>
+          <h2>
+            {img.name} — {img.mission} — {img.timestamp}
+          </h2>
+          <ImageViewerClient id={img.id} />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://www.spaceappschallenge.org/2025/find-a-team/solaria4/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Team Solaria
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://www.spaceappschallenge.org/2025/challenges/embiggen-your-eyes/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          See full challenge description →
-        </a>
-      </footer>
-    </div>
+      ))}
+    </Container>
   );
 }

@@ -1,26 +1,56 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body, #root {
+  height: 100%;
+  margin: 0;
 }
 
 body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+body.theme-loaded {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  --bg-color: #fff;
+  --bs-danger-rgb: 218, 37, 29;
+  --bs-link-color: #000;
+  --bs-link-color-rgb: 218, 37, 29;
+  --bs-link-active-color-rgb: 179, 30, 23;
+  --bs-link-focus-color-rgb: 179, 30, 23;
+  --bs-link-hover-color-rgb: 179, 30, 23;
+  --text-color: #000;
+}
+
+[data-theme='dark'] #root {
+  --bs-link-color: #e0e0e0;
+}
+
+[data-theme='dark'] {
+  --bs-body-bg: #242424;
+  --bs-body-color: #e0e0e0;
+  --bg-color: #1e1e1e;
+  --bs-dark-rgb: 40, 40, 40;
+  --bs-danger-rgb: 207, 102, 121;
+  --bs-link-color-rgb: 207, 102, 121;
+  --bs-link-active-color-rgb: 230, 70, 83;
+  --bs-link-focus-color-rgb: 230, 70, 83;
+  --bs-link-hover-color-rgb: 230, 70, 83;
+  --bs-emphasis-color: #e0e0e0;
+  --text-color: #e0e0e0;
+}
+
+/* body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+} */
+main {
+  min-width: 100% !important;
+  height: auto !important;
 }
 
 h1 {
