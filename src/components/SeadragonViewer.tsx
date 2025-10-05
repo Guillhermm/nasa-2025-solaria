@@ -232,7 +232,6 @@ export default function SeadragonViewer({
     const vp = viewerRef.current.viewport;
     const zoomFactor = percent / 100;
     vp.zoomTo(zoomFactor, vp.getCenter(), true);
-
   };
 
   const handleReset = () => {
@@ -242,12 +241,8 @@ export default function SeadragonViewer({
 
   return (
     <div className="image-viewer-container position-relative">
-      <div className="w-100 my-4" style={{ height: "500px" }}>
-        <div
-          ref={containerRef}
-          className="w-100 bg-black"
-          style={{ height: "100%" }}
-        />
+      <div className="w-100 h-400px my-4 h-500px">
+        <div ref={containerRef} className="w-100 h-400px bg-black h-100" />
       </div>
       {/* Zoom / control buttons */}
       <div className="zoom-controls-section d-flex flex-column gap-3 flex-md-row">

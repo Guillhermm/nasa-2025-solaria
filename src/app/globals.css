@@ -753,3 +753,13 @@ h2 {
 .mode-uv .thumbnail-img {
   filter: hue-rotate(200deg) brightness(1.2) saturate(1.4);
 }
+
+.h-400px {
+  height: 400px;
+}
+
+@media (min-width: 768px) {
+  .h-500px {
+    height: 500px;
+  }
+}
