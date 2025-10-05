@@ -16,6 +16,9 @@
 3. Add/Remove Flags:
     a. Right-click at any point of the image to add new flag
     b. Right-click on an existing flag to rename it or remove it
+    c. Table relating all flags, their names and positions
+    d. Options to export to JSON or CSV
+    e. Data exists in data storage
 
 4. Minimap navigation:
     a. Minimap highlights displayed area
