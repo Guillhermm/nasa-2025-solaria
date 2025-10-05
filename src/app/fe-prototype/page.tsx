@@ -458,7 +458,6 @@ const NASAImageViewer: React.FC = () => {
 
   const handleWheel = useCallback(
     (e: React.WheelEvent) => {
-      e.preventDefault();
       const direction = e.deltaY > 0 ? -1 : 1;
       zoom(direction, e.clientX, e.clientY);
     },
