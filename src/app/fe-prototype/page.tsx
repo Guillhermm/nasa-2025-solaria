@@ -32,6 +32,9 @@ const IMAGE_RESOLUTIONS: ImageResolution[] = [
   { level: 2400, name: "Maximum Resolution", url: "https://images-assets.nasa.gov/image/PIA03149/PIA03149~orig.jpg", width: 16384 }
 ];
 
+// Storage key for flags
+const FLAGS_STORAGE_KEY = 'nasa-image-viewer-flags';
+
 const NASAImageViewer: React.FC = () => {
   // Refs
   const viewerRef = useRef<HTMLDivElement>(null);
@@ -55,12 +58,31 @@ const NASAImageViewer: React.FC = () => {
   const [showContextMenu, setShowContextMenu] = useState<boolean>(false);
   const [contextMenuPosition, setContextMenuPosition] = useState<Position>({ x: 0, y: 0 });
   const [contextMenuFlag, setContextMenuFlag] = useState<Flag | null>(null);
+  const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
 
   // Drag state
   const dragStartRef = useRef<Position>({ x: 0, y: 0 });
   const initialDistanceRef = useRef<number | null>(null);
   const isMinimapDraggingRef = useRef<boolean>(false);
   const minimapStartRef = useRef<Position>({ x: 0, y: 0 });
+
+  // Load flags from localStorage on component mount
+  useEffect(() => {
+    const savedFlags = localStorage.getItem(FLAGS_STORAGE_KEY);
+    if (savedFlags) {
+      try {
+        const parsedFlags = JSON.parse(savedFlags);
+        setFlags(parsedFlags);
+      } catch (error) {
+        console.error('Error loading saved flags:', error);
+      }
+    }
+  }, []);
+
+  // Save flags to localStorage whenever flags change
+  useEffect(() => {
+    localStorage.setItem(FLAGS_STORAGE_KEY, JSON.stringify(flags));
+  }, [flags]);
 
   // Generate unique ID for flags
   const generateFlagId = useCallback(() => {
@@ -208,6 +230,7 @@ const NASAImageViewer: React.FC = () => {
     };
     
     setFlags(prev => [...prev, newFlag]);
+    setSelectedFlagId(newFlag.id);
   }, [generateFlagId]);
 
   const updateFlag = useCallback((flagId: string, newName: string) => {
@@ -218,6 +241,53 @@ const NASAImageViewer: React.FC = () => {
 
   const removeFlag = useCallback((flagId: string) => {
     setFlags(prev => prev.filter(flag => flag.id !== flagId));
+    if (selectedFlagId === flagId) {
+      setSelectedFlagId(null);
+    }
+  }, [selectedFlagId]);
+
+  // Export functions
+  const exportAsJSON = useCallback(() => {
+    const dataStr = JSON.stringify(flags, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'nasa-image-flags.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [flags]);
+
+  const exportAsCSV = useCallback(() => {
+    const headers = ['Name', 'X Position', 'Y Position'];
+    const csvContent = [
+      headers.join(','),
+      ...flags.map(flag => [
+        `"${flag.name.replace(/"/g, '""')}"`,
+        flag.x.toFixed(2),
+        flag.y.toFixed(2)
+      ].join(','))
+    ].join('\n');
+
+    const dataBlob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'nasa-image-flags.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [flags]);
+
+  // Clear all flags
+  const clearAllFlags = useCallback(() => {
+    if (window.confirm('Are you sure you want to delete all flags? This action cannot be undone.')) {
+      setFlags([]);
+      setSelectedFlagId(null);
+    }
   }, []);
 
   // Zoom functions
@@ -294,6 +364,7 @@ const NASAImageViewer: React.FC = () => {
   }, []);
 
   const handleWheel = useCallback((e: React.WheelEvent) => {
+    e.preventDefault();
     const direction = e.deltaY > 0 ? -1 : 1;
     zoom(direction, e.clientX, e.clientY);
   }, [zoom]);
@@ -321,10 +392,24 @@ const NASAImageViewer: React.FC = () => {
     e.preventDefault();
     e.stopPropagation();
     
-    setContextMenuPosition({ x: e.pageX, y: e.pageY });
+    setContextMenuPosition({ x: e.clientX, y: e.clientY });
     setContextMenuFlag(flag);
     setShowContextMenu(true);
   }, []);
+
+  const handleFlagClick = useCallback((e: React.MouseEvent, flag: Flag) => {
+    e.stopPropagation();
+    setSelectedFlagId(flag.id);
+  }, []);
+
+  const handleTableRowClick = useCallback((flag: Flag) => {
+    setSelectedFlagId(flag.id);
+  }, []);
+
+  const handleDeleteFromTable = useCallback((e: React.MouseEvent, flag: Flag) => {
+    e.stopPropagation();
+    removeFlag(flag.id);
+  }, [removeFlag]);
 
   const handleMinimapMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.target !== minimapViewportRef.current) return;
@@ -448,17 +533,6 @@ const NASAImageViewer: React.FC = () => {
     };
   }, [updateMainViewFromMinimap]);
 
-  useEffect(() => {
-    // Add sample flags
-    const timer = setTimeout(() => {
-      addFlag(25, 30, "Interesting Feature");
-      addFlag(60, 45, "Anomaly");
-      addFlag(75, 70, "Research Area");
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [addFlag]);
-
   // Modal and context menu handlers
   const handleAddFlag = () => {
     if (flagModalName.trim()) {
@@ -482,6 +556,22 @@ const NASAImageViewer: React.FC = () => {
       setShowContextMenu(false);
     }
   };
+
+  // Trash icon SVG
+  const TrashIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+    </svg>
+  );
+
+  // Export icon SVG
+  const ExportIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="7 10 12 15 17 10"/>
+      <line x1="12" y1="15" x2="12" y2="3"/>
+    </svg>
+  );
 
   return (
     <div className="nasa-image-viewer">
@@ -513,8 +603,9 @@ const NASAImageViewer: React.FC = () => {
             {flags.map(flag => (
               <div
                 key={flag.id}
-                className="flag"
+                className={`flag ${selectedFlagId === flag.id ? 'flag-selected' : ''}`}
                 style={{ left: `${flag.x}%`, top: `${flag.y}%` }}
+                onClick={(e) => handleFlagClick(e, flag)}
                 onContextMenu={(e) => handleFlagContextMenu(e, flag)}
               >
                 <div className="flag-label">{flag.name}</div>
@@ -542,10 +633,87 @@ const NASAImageViewer: React.FC = () => {
           {flags.map(flag => (
             <div
               key={`minimap-${flag.id}`}
-              className="minimap-flag"
+              className={`minimap-flag ${selectedFlagId === flag.id ? 'minimap-flag-selected' : ''}`}
               style={{ left: `${flag.x}%`, top: `${flag.y}%` }}
             />
           ))}
+        </div>
+
+        {/* Flags Table */}
+        <div className="flags-table-container">
+          <div className="flags-table-header">
+            <h3>Annotation Flags ({flags.length})</h3>
+            <div className="export-buttons">
+              <button 
+                className="export-button"
+                onClick={exportAsJSON}
+                disabled={flags.length === 0}
+                title="Export as JSON"
+              >
+                <ExportIcon />
+                JSON
+              </button>
+              <button 
+                className="export-button"
+                onClick={exportAsCSV}
+                disabled={flags.length === 0}
+                title="Export as CSV"
+              >
+                <ExportIcon />
+                CSV
+              </button>
+              <button 
+                className="clear-button"
+                onClick={clearAllFlags}
+                disabled={flags.length === 0}
+                title="Clear all flags"
+              >
+                <TrashIcon />
+                Clear All
+              </button>
+            </div>
+          </div>
+          <div className="flags-table-wrapper">
+            <table className="flags-table">
+              <thead>
+                <tr>
+                  <th className="action-column"></th>
+                  <th>Name</th>
+                  <th>X Position</th>
+                  <th>Y Position</th>
+                </tr>
+              </thead>
+              <tbody>
+                {flags.map(flag => (
+                  <tr 
+                    key={`table-${flag.id}`}
+                    className={selectedFlagId === flag.id ? 'table-row-selected' : ''}
+                    onClick={() => handleTableRowClick(flag)}
+                  >
+                    <td className="action-column">
+                      <button 
+                        className="delete-button"
+                        onClick={(e) => handleDeleteFromTable(e, flag)}
+                        title="Delete flag"
+                      >
+                        <TrashIcon />
+                      </button>
+                    </td>
+                    <td>{flag.name}</td>
+                    <td>{flag.x.toFixed(2)}%</td>
+                    <td>{flag.y.toFixed(2)}%</td>
+                  </tr>
+                ))}
+                {flags.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="no-flags-message">
+                      No flags added yet. Right-click on the image to add a flag.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="controls">
@@ -640,22 +808,612 @@ const NASAImageViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Instructions */}
-      <div className="instructions">
-        <h2>How It Works</h2>
-        <p>This viewer loads increasingly higher resolution images as you zoom in:</p>
-        <ul>
-          <li><strong>Zoom Level 100-150%:</strong> Small image (640px)</li>
-          <li><strong>Zoom Level 150-300%:</strong> Medium image (1024px)</li>
-          <li><strong>Zoom Level 300-600%:</strong> Large image (2048px)</li>
-          <li><strong>Zoom Level 600-1200%:</strong> High-Res (4096px)</li>
-          <li><strong>Zoom Level 1200-2400%:</strong> Ultra High-Res (8192px)</li>
-          <li><strong>Zoom Level 2400%+:</strong> Maximum Resolution (16384px)</li>
-        </ul>
-        <p><strong>Right-click</strong> anywhere on the image to add a flag annotation.</p>
-        <p><strong>Right-click</strong> on an existing flag to rename or remove it.</p>
-        <p>All flags appear as red dots on the minimap.</p>
-      </div>
+      <style jsx>{`
+        .nasa-image-viewer {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #0b3c5d 0%, #1d2731 100%);
+          color: #fff;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 20px;
+        }
+
+        header {
+          text-align: center;
+          margin-bottom: 30px;
+          width: 100%;
+          max-width: 1200px;
+        }
+
+        h1 {
+          font-size: 2.5rem;
+          margin-bottom: 10px;
+          background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+          font-size: 1.2rem;
+          opacity: 0.8;
+          margin-bottom: 20px;
+        }
+
+        .container {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          max-width: 1200px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 15px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          backdrop-filter: blur(10px);
+          position: relative;
+        }
+
+        .viewer-container {
+          position: relative;
+          width: 100%;
+          height: 60vh;
+          overflow: hidden;
+          background: #000;
+          cursor: grab;
+          touch-action: none;
+        }
+
+        .viewer-container:active {
+          cursor: grabbing;
+        }
+
+        .image-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          transform-origin: 0 0;
+          transition: transform 0.1s ease-out;
+        }
+
+        .nasa-image {
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          user-select: none;
+          -webkit-user-drag: none;
+        }
+
+        .flag {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background: #ff4757;
+          border: 2px solid white;
+          border-radius: 50%;
+          cursor: pointer;
+          transform: translate(-50%, -50%);
+          z-index: 5;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+          transition: all 0.2s ease;
+        }
+
+        .flag:hover {
+          transform: translate(-50%, -50%) scale(1.2);
+          background: #ff6b81;
+        }
+
+        .flag-selected {
+          background: #4facfe !important;
+          border-color: #00f2fe !important;
+          box-shadow: 0 0 0 2px #00f2fe, 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .flag-label {
+          position: absolute;
+          top: -25px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: 3px 6px;
+          border-radius: 3px;
+          font-size: 11px;
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+
+        .flag:hover .flag-label {
+          opacity: 1;
+        }
+
+        .minimap-flag {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          background: #ff4757;
+          border: 1px solid white;
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 6;
+          pointer-events: none;
+        }
+
+        .minimap-flag-selected {
+          background: #4facfe !important;
+          border-color: #00f2fe !important;
+          box-shadow: 0 0 0 1px #00f2fe;
+        }
+
+        /* Flags Table Styles */
+        .flags-table-container {
+          padding: 15px 20px;
+          background: rgba(0, 0, 0, 0.3);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          margin-right: 220px;
+        }
+
+        .flags-table-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+
+        .flags-table-header h3 {
+          color: #4facfe;
+          font-size: 1.1rem;
+          margin: 0;
+        }
+
+        .export-buttons {
+          display: flex;
+          gap: 8px;
+        }
+
+        .export-button, .clear-button {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          padding: 6px 12px;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 0.85rem;
+          transition: all 0.2s ease;
+        }
+
+        .export-button:hover:not(:disabled), .clear-button:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.2);
+          transform: translateY(-1px);
+        }
+
+        .export-button:disabled, .clear-button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .clear-button {
+          background: rgba(255, 71, 87, 0.2);
+          border-color: rgba(255, 71, 87, 0.3);
+        }
+
+        .clear-button:hover:not(:disabled) {
+          background: rgba(255, 71, 87, 0.3);
+        }
+
+        .flags-table-wrapper {
+          max-height: 150px;
+          overflow-y: auto;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 6px;
+        }
+
+        .flags-table {
+          width: 100%;
+          border-collapse: collapse;
+          background: rgba(255, 255, 255, 0.05);
+        }
+
+        .flags-table th {
+          background: rgba(79, 172, 254, 0.2);
+          padding: 10px 12px;
+          text-align: left;
+          font-weight: 600;
+          font-size: 0.9rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .flags-table td {
+          padding: 8px 12px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          font-size: 0.9rem;
+        }
+
+        .action-column {
+          width: 40px;
+          text-align: center;
+          padding: 8px 4px !important;
+        }
+
+        .delete-button {
+          background: transparent;
+          border: none;
+          color: rgba(255, 255, 255, 0.6);
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 3px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .delete-button:hover {
+          color: #ff4757;
+          background: rgba(255, 71, 87, 0.1);
+          transform: scale(1.1);
+        }
+
+        .flags-table tr {
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+        }
+
+        .flags-table tr:hover {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .table-row-selected {
+          background: rgba(79, 172, 254, 0.3) !important;
+          color: #00f2fe;
+        }
+
+        .no-flags-message {
+          text-align: center;
+          color: rgba(255, 255, 255, 0.6);
+          font-style: italic;
+          padding: 20px;
+        }
+
+        .context-menu {
+          position: fixed;
+          background: rgba(30, 30, 30, 0.95);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 8px;
+          padding: 8px 0;
+          z-index: 1000;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(10px);
+          min-width: 150px;
+        }
+
+        .context-menu-item {
+          padding: 8px 16px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+          font-size: 14px;
+        }
+
+        .context-menu-item:hover {
+          background: rgba(79, 172, 254, 0.3);
+        }
+
+        .flag-modal {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(30, 30, 30, 0.95);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          padding: 20px;
+          z-index: 1001;
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(15px);
+          min-width: 300px;
+        }
+
+        .flag-modal h3 {
+          margin-bottom: 15px;
+          color: #4facfe;
+        }
+
+        .flag-input {
+          width: 100%;
+          padding: 10px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 6px;
+          color: white;
+          font-size: 14px;
+          margin-bottom: 15px;
+        }
+
+        .flag-input:focus {
+          outline: none;
+          border-color: #4facfe;
+        }
+
+        .flag-modal-buttons {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+        }
+
+        .modal-button {
+          padding: 8px 16px;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: all 0.2s ease;
+        }
+
+        .modal-button.primary {
+          background: #4facfe;
+          color: white;
+        }
+
+        .modal-button.primary:hover {
+          background: #00f2fe;
+        }
+
+        .modal-button.secondary {
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+        }
+
+        .modal-button.secondary:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-button.danger {
+          background: #ff4757;
+          color: white;
+        }
+
+        .modal-button.danger:hover {
+          background: #ff6b81;
+        }
+
+        .loading-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.7);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 10;
+          opacity: 0;
+          transition: opacity 0.3s;
+          pointer-events: none;
+        }
+
+        .loading-overlay.active {
+          opacity: 1;
+        }
+
+        .spinner {
+          width: 50px;
+          height: 50px;
+          border: 5px solid rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          border-top-color: #4facfe;
+          animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        .controls {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px 20px;
+          background: rgba(0, 0, 0, 0.5);
+        }
+
+        .zoom-controls {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          width: 100%;
+        }
+
+        .zoom-slider-container {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+        }
+
+        .zoom-slider {
+          flex: 1;
+          -webkit-appearance: none;
+          height: 6px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 3px;
+          outline: none;
+        }
+
+        .zoom-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: #4facfe;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .zoom-slider::-webkit-slider-thumb:hover {
+          background: #00f2fe;
+          transform: scale(1.1);
+        }
+
+        .zoom-input-container {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .zoom-input {
+          width: 70px;
+          padding: 8px 12px;
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 5px;
+          color: white;
+          font-size: 16px;
+          text-align: center;
+        }
+
+        .zoom-input:focus {
+          outline: none;
+          border-color: #4facfe;
+        }
+
+        button {
+          background: rgba(255, 255, 255, 0.1);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: white;
+          padding: 8px 15px;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 16px;
+        }
+
+        button:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: translateY(-2px);
+        }
+
+        button:active {
+          transform: translateY(0);
+        }
+
+        .zoom-level {
+          font-size: 16px;
+          font-weight: bold;
+          min-width: 80px;
+          text-align: center;
+        }
+
+        .resolution-info {
+          font-size: 14px;
+          opacity: 0.8;
+          margin-left: 20px;
+        }
+
+        .minimap-container {
+          position: absolute;
+          bottom: 100px;
+          right: 20px;
+          width: 200px;
+          height: 150px;
+          background: rgba(0, 0, 0, 0.7);
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 8px;
+          overflow: hidden;
+          z-index: 20;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .minimap-image {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          opacity: 0.8;
+        }
+
+        .minimap-viewport {
+          position: absolute;
+          border: 2px solid #4facfe;
+          background: rgba(79, 172, 254, 0.2);
+          cursor: move;
+          transition: all 0.1s ease;
+        }
+
+        .minimap-viewport:active {
+          cursor: grabbing;
+        }
+
+        @media (max-width: 768px) {
+          h1 {
+            font-size: 2rem;
+          }
+          
+          .subtitle {
+            font-size: 1rem;
+          }
+          
+          .controls {
+            flex-direction: column;
+            gap: 15px;
+          }
+          
+          .zoom-controls {
+            flex-direction: column;
+            width: 100%;
+            gap: 15px;
+          }
+          
+          .zoom-slider-container {
+            width: 100%;
+          }
+          
+          .resolution-info {
+            margin-left: 0;
+            text-align: center;
+          }
+          
+          .minimap-container {
+            width: 150px;
+            height: 112px;
+            bottom: 90px;
+            right: 10px;
+          }
+
+          .flags-table-container {
+            padding: 10px 15px;
+            margin-right: 170px;
+          }
+
+          .flags-table-wrapper {
+            max-height: 120px;
+          }
+
+          .flags-table-header {
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+          }
+
+          .export-buttons {
+            width: 100%;
+            justify-content: flex-start;
+          }
+        }
+      `}</style>
     </div>
   );
 };
