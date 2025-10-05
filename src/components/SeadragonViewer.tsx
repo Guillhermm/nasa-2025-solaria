@@ -6,12 +6,14 @@ import { Flag, ImageMeta, Position } from "@/types";
 import { Button } from "react-bootstrap";
 
 interface SeadragonViewerProps {
+  title: string;
   id: string;
   initialFlags?: Flag[];
   onFlagsChange?: (flags: Flag[]) => void;
 }
 
 export default function SeadragonViewer({
+  title,
   id,
   initialFlags = [],
   onFlagsChange,
@@ -240,69 +242,73 @@ export default function SeadragonViewer({
   };
 
   return (
-    <div className="image-viewer-container position-relative">
-      <div className="w-100 h-400px my-4 h-500px">
-        <div ref={containerRef} className="w-100 h-400px bg-black h-100" />
-      </div>
-      {/* Zoom / control buttons */}
-      <div className="zoom-controls-section d-flex flex-column gap-3 flex-md-row">
-        <div className="zoom-slider-container">
-          <span>100%</span>
-          <input
-            type="range"
-            min="100"
-            max="5000"
-            value={Math.round(scale * 100)}
-            className="zoom-slider"
-            onChange={(e) => {
-              const newPct = parseInt(e.target.value, 10);
-              handleZoomTo(newPct);
-            }}
-          />
-          <span>5000%</span>
+    <>
+      <h3>{title}</h3>
+
+      <div className="image-viewer-container position-relative">
+        <div className="w-100 h-400px my-4 h-500px">
+          <div ref={containerRef} className="w-100 h-400px bg-black h-100" />
         </div>
-        <div className="zoom-input-container">
-          <label htmlFor="zoomInput">Zoom:</label>
-          <input
-            id="zoomInput"
-            type="number"
-            min="100"
-            max="5000"
-            value={Math.round(scale * 100)}
-            className="zoom-input"
-            onChange={(e) => {
-              const newPct = parseInt(e.target.value, 10);
-              handleZoomTo(newPct);
-            }}
-          />
-          <span>%</span>
+        {/* Zoom / control buttons */}
+        <div className="zoom-controls-section d-flex flex-column gap-3 flex-md-row">
+          <div className="zoom-slider-container">
+            <span>100%</span>
+            <input
+              type="range"
+              min="100"
+              max="5000"
+              value={Math.round(scale * 100)}
+              className="zoom-slider"
+              onChange={(e) => {
+                const newPct = parseInt(e.target.value, 10);
+                handleZoomTo(newPct);
+              }}
+            />
+            <span>5000%</span>
+          </div>
+          <div className="zoom-input-container">
+            <label htmlFor="zoomInput">Zoom:</label>
+            <input
+              id="zoomInput"
+              type="number"
+              min="100"
+              max="5000"
+              value={Math.round(scale * 100)}
+              className="zoom-input"
+              onChange={(e) => {
+                const newPct = parseInt(e.target.value, 10);
+                handleZoomTo(newPct);
+              }}
+            />
+            <span>%</span>
+          </div>
+          <Button
+            id="reset"
+            onClick={handleReset}
+            size="lg"
+            className="btn btn-danger rounded-0 text-uppercase fw-bold"
+          >
+            Reset View
+          </Button>
         </div>
-        <Button
-          id="reset"
-          onClick={handleReset}
-          size="lg"
-          className="btn btn-danger rounded-0 text-uppercase fw-bold"
+        {/* Floating status */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            color: "white",
+            padding: "12px",
+            borderRadius: "4px",
+            zIndex: 1000,
+          }}
         >
-          Reset View
-        </Button>
+          Zoom: {scale.toFixed(2)} | Center: ({center.x.toFixed(2)},{" "}
+          {center.y.toFixed(2)})
+        </div>
+        {/* {renderContextMenu()} */}
       </div>
-      {/* Floating status */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          backgroundColor: "rgba(0,0,0,0.5)",
-          color: "white",
-          padding: "12px",
-          borderRadius: "4px",
-          zIndex: 1000,
-        }}
-      >
-        Zoom: {scale.toFixed(2)} | Center: ({center.x.toFixed(2)},{" "}
-        {center.y.toFixed(2)})
-      </div>
-      {/* {renderContextMenu()} */}
-    </div>
+    </>
   );
 }

@@ -25,9 +25,10 @@ export default function MainContent() {
 
   return (
     <>
-      <SeadragonViewer id="hubble-mosaic-high" />
       <SectionDivider />
-      <NasaGallery images={sampleImages} />
+      <SeadragonViewer title="1. Deep Viewer" id="hubble-mosaic-high" />
+      <SectionDivider />
+      <NasaGallery title="2. Spectral Gallery" images={sampleImages} />
     </>
   );
 }
