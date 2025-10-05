@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
               className="d-inline-flex align-items-center gap-2 text-light text-decoration-none fw-bold"
             >
               <BsPeople size={24} />
-              Team Solaria
+              Solaria Team
             </a>
             <a
               href="https://www.spaceappschallenge.org/2025/challenges/embiggen-your-eyes/"
