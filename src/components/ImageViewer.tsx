@@ -54,6 +54,6 @@ export default function ImageViewer({ id }: ImageViewerProps) {
   }, [meta]);
 
   return (
-    <div ref={osdContainerRef} style={{ width: "100%", height: "500px" }} />
+    <div ref={osdContainerRef} className="w-100" style={{ height: "500px" }} />
   );
 }

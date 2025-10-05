@@ -9,3 +9,23 @@ export interface ImageMeta {
   minLevel: number;
   maxLevel: number;
 }
+
+// Types
+export interface ImageResolution {
+  level: number;
+  name: string;
+  url: string;
+  width: number;
+}
+
+export interface Flag {
+  id: string;
+  x: number;
+  y: number;
+  name: string;
+}
+
+export interface Position {
+  x: number;
+  y: number;
+}
