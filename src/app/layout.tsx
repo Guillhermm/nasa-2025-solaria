@@ -1,8 +1,8 @@
 import React from "react";
 import type { Metadata } from "next";
 import { ThemeProviderClient } from "@/context/ThemeProviderClient";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/globals/Header";
+import Footer from "@/components/globals/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 

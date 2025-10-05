@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { Navbar, Nav } from "react-bootstrap";
 import Image from "next/image";
-import ThemeSwitcher from "./ThemeSwitcher";
-import profile from "../assets/logos/logo.png";
+import ThemeSwitcher from "../ThemeSwitcher";
+import profile from "../../assets/logos/logo.png";
 
 const Header: React.FC = () => {
   return (
