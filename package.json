@@ -10,9 +10,11 @@
     "generate-tiles": "tsx scripts/generate-tiles.ts"
   },
   "dependencies": {
+    "bootstrap": "^5.3.8",
     "next": "15.5.4",
     "openseadragon": "^5.0.1",
     "react": "19.1.0",
+    "react-bootstrap": "^2.10.10",
     "react-dom": "19.1.0",
     "react-leaflet": "^5.0.0",
     "wasm-vips": "^0.0.15"
