@@ -581,11 +581,15 @@ h2 {
   width: 80px;
   padding: 8px 12px;
   background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid #ccc;
   border-radius: 5px;
-  color: white;
   font-size: 16px;
   text-align: center;
+}
+
+[data-theme='dark'] .zoom-input {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
 }
 
 .zoom-input:focus {

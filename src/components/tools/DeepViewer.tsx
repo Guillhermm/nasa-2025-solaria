@@ -1,32 +1,17 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import OpenSeadragon from "openseadragon";
 import { Button } from "react-bootstrap";
-import { DeepViewerProps, Flag, ImageMeta, Position } from "@/types";
+import { DeepViewerProps, ImageMeta } from "@/types";
 
 export default function DeepViewer({
   title,
   id,
-  initialFlags = [],
-  onFlagsChange,
 }: DeepViewerProps) {
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [flags, setFlags] = useState<Flag[]>(initialFlags);
-  const [selectedFlagId, setSelectedFlagId] = useState<string | null>(null);
-  const [contextMenuFlag, setContextMenuFlag] = useState<Flag | null>(null);
-  const [showContextMenu, setShowContextMenu] = useState(false);
-  const [contextMenuPos, setContextMenuPos] = useState<{
-    x: number;
-    y: number;
-  }>({ x: 0, y: 0 });
   const [scale, setScale] = useState<number>(1);
-
-  // Zoom / viewport state (you may or may not need to store these externally)
-  // const [zoom, setZoom] = useState<number>(1);
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-
   const [center, setCenter] = useState<{ x: number; y: number }>({
     x: 0,
     y: 0,
@@ -83,144 +68,11 @@ export default function DeepViewer({
       setCenter({ x: c.x, y: c.y });
     });
 
-    // Canvas click (to add flags / context menu)
-    viewer.addHandler("canvas-click", (evt) => {
-      const viewer = viewerRef.current!;
-      const vp = viewer.viewport;
-      const point = vp.viewerElementToViewportCoordinates(evt.position);
-      // convert to image pixel coordinates
-      const imgX = point.x * imageMeta.width;
-      const imgY = point.y * imageMeta.height;
-      // convert to % coords relative to full image
-      const pctX = (imgX / imageMeta.width) * 100;
-      const pctY = (imgY / imageMeta.height) * 100;
-
-      // Open context menu / modal for adding a flag
-      // setContextMenuPos({
-      //   x: evt.originalEvent.clientX,
-      //   y: evt.originalEvent.clientY,
-      // });
-      // setShowContextMenu(true);
-      // setContextMenuFlag({ id: "", x: pctX, y: pctY, name: "" }); // placeholder flag object to rename / confirm
-    });
-
-    // After open, place overlays
-    viewer.addHandler("open", () => {
-      for (const f of flags) {
-        addFlagOverlay(f, viewer);
-      }
-    });
-
     return () => {
       viewer.destroy();
       viewerRef.current = null;
     };
   }, [imageMeta]);
-
-  // When flags change, optionally notify parent
-  useEffect(() => {
-    onFlagsChange?.(flags);
-  }, [flags, onFlagsChange]);
-
-  // Function to add overlay element
-  const addFlagOverlay = (flag: Flag, viewer: OpenSeadragon.Viewer) => {
-    // only run on client
-    if (typeof window === "undefined") return;
-
-    if (!imageMeta) return;
-
-    const el = document.createElement("div");
-    el.className = "flag-overlay";
-    el.innerText = flag.name;
-    el.onclick = () => {
-      setSelectedFlagId(flag.id);
-    };
-    el.oncontextmenu = (evt) => {
-      evt.preventDefault();
-      setContextMenuFlag(flag);
-      setShowContextMenu(true);
-    };
-    // location: convert percentage to image coordinate point
-    const px = (flag.x / 100) * imageMeta.width;
-    const py = (flag.y / 100) * imageMeta.height;
-    viewer.addOverlay({
-      element: el,
-      location: new OpenSeadragon.Point(px, py),
-      placement: OpenSeadragon.Placement.CENTER, // or TOP_LEFT, etc
-      checkResize: false,
-    });
-  };
-
-  // Handler to confirm new flag from context menu
-  const handleAddFlagConfirm = (name: string) => {
-    if (!contextMenuFlag) return;
-    const newId = `flag-${Date.now()}`;
-    const newFlag: Flag = {
-      id: newId,
-      x: contextMenuFlag.x,
-      y: contextMenuFlag.y,
-      name,
-    };
-    setFlags((prev) => [...prev, newFlag]);
-    setShowContextMenu(false);
-    // also immediately overlay it
-    if (viewerRef.current) addFlagOverlay(newFlag, viewerRef.current);
-  };
-
-  // Handler delete / rename from context menu
-  const handleDeleteFlag = () => {
-    if (!contextMenuFlag) return;
-    setFlags((prev) => prev.filter((f) => f.id !== contextMenuFlag.id));
-    setShowContextMenu(false);
-    // ideally remove overlay element too
-    if (viewerRef.current) {
-      // find overlay element by matching innerText or ID and remove
-      // @ts-expect-error Wrong type to be fixed later.
-      const overlays = viewerRef.current.overlays;
-      for (const ov of overlays) {
-        const el = ov.element as HTMLElement;
-        if (el.innerText === contextMenuFlag.name) {
-          viewerRef.current.removeOverlay(el);
-        }
-      }
-    }
-  };
-
-  // Context menu render
-  const renderContextMenu = () => {
-    if (!showContextMenu || !contextMenuFlag) return null;
-    const isExisting = flags.some((f) => f.id === contextMenuFlag.id);
-    return (
-      <div
-        className="context-menu"
-        style={{
-          position: "fixed",
-          left: contextMenuPos.x,
-          top: contextMenuPos.y,
-          backgroundColor: "white",
-          border: "1px solid gray",
-          zIndex: 10000,
-        }}
-      >
-        {isExisting && (
-          <div className="context-menu-item" onClick={() => handleDeleteFlag()}>
-            Delete Flag
-          </div>
-        )}
-        <div
-          className="context-menu-item"
-          onClick={() => {
-            const name = prompt("Enter flag name", contextMenuFlag.name || "");
-            if (name) {
-              handleAddFlagConfirm(name);
-            }
-          }}
-        >
-          {isExisting ? "Rename Flag" : "Add Flag"}
-        </div>
-      </div>
-    );
-  };
 
   const handleZoomTo = (percent: number) => {
     if (!viewerRef.current) return;
@@ -300,7 +152,6 @@ export default function DeepViewer({
           Zoom: {scale.toFixed(2)} | Center: ({center.x.toFixed(2)},{" "}
           {center.y.toFixed(2)})
         </div>
-        {/* {renderContextMenu()} */}
       </div>
     </>
   );
