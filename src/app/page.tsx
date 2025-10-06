@@ -7,8 +7,8 @@ import SpectralGallery from "@/components/tools/SpectralGallery";
 export default function Home() {
   const sampleImages = [
     {
-      id: "andromeda",
-      title: "Andromeda Galaxy",
+      id: "sun_pia22946",
+      title: "Sun (PIA03149)",
       url: "https://images-assets.nasa.gov/image/PIA03149/PIA03149~orig.jpg",
     },
     {
@@ -57,6 +57,7 @@ export default function Home() {
       <SectionDivider />
       <ImageComparisonSlider
         title="2. Comparison Slider"
+        subtitle="Nebula Giant Cloud"
         images={comparisonImages}
       />
       <SectionDivider />

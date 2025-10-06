@@ -68,7 +68,7 @@ export default function SpectralGallery({
 
   return (
     <div className="spectral-gallery">
-      <h3>{title}</h3>
+      <h2>{title}</h2>
       <div className="mb-4">By switching between visible, infrared, and ultraviolet representations, you unlock entirely new layers of the universe that remain hidden to the naked eye. Infrared light can penetrate dust and gas to expose budding stars, cold molecular clouds, and structures veiled in darkness. Ultraviolet highlights the hottest, most energetic processes like stellar winds, ionized gas, and bursts of star formation. Together, these modes let you compare and contrast different aspects of the same scene, revealing nuance, hidden patterns, or transient changes that would otherwise stay invisible. Use these views not just as tools, but as invitations: to wonder, to question, and to discover things you never knew were there.</div>
       {loading && (
         <div className="text-center my-4">
@@ -79,7 +79,7 @@ export default function SpectralGallery({
       )}
       {currentImage && (
         <>
-          <h4>{currentImage.title}</h4>
+          <h3>{currentImage.title}</h3>
           <Row className="gap-3">
             {/* Main image */}
             <Col xs={12} lg={8}>

@@ -27,7 +27,6 @@ export default function ImageViewer({ id }: ImageViewerProps) {
 
     if (!meta) return;
 
-    console.log("meta", meta);
     if (osdContainerRef.current && !viewerRef.current) {
       viewerRef.current = OpenSeadragon({
         element: osdContainerRef.current,

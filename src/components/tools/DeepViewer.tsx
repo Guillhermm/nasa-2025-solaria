@@ -106,7 +106,7 @@ export default function DeepViewer({ title, id }: DeepViewerProps) {
 
   return (
     <>
-      <h3>{title}</h3>
+      <h2>{title}</h2>
       <div className="mb-4">
         Explore every detail, without waiting: our Deep Viewer splits massive
         images into many small tiles, loading only what you need at your current
@@ -115,10 +115,12 @@ export default function DeepViewer({ title, id }: DeepViewerProps) {
         your browser or network. It is designed to be fast, responsive, and
         intuitive, so you can spend more time discovering and less time waiting.
       </div>
-
+      {imageMeta && (
+        <h3>{imageMeta.name}</h3>
+      )}
       <div className="deep-viewer-container position-relative" ref={wrapperRef}>
         <div
-          className={`w-100 my-4 ${
+          className={`w-100 mb-4 ${
             isFullscreen ? "fullscreen-viewer" : "h-400px h-md-500px"
           }`}
         >

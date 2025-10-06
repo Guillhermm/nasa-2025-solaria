@@ -14,7 +14,7 @@ export const images: ImageMeta[] = [
   },
   {
     id: 'hubble-mosaic-high',
-    name: 'Andromeda Galaxy (High)',
+    name: 'Andromeda Galaxy',
     mission: 'Hubble',
     timestamp: '2015-10-02',
     width: 96000,
