@@ -106,7 +106,7 @@ This document outlines the **front-end requirements** for the **Solaria** platfo
 
 ---
 
-## ✅ Notes
+## Notes
 
 The front-end requirements prioritize:
 
