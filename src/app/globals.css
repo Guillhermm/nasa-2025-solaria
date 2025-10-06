@@ -763,6 +763,10 @@ h2 {
   min-width: 0 !important;
 }
 
+.fullscreen-viewer {
+  height: 100vh !important;
+}
+
 .h-400px {
   height: 400px;
 }

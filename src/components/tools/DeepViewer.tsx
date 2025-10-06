@@ -6,15 +6,15 @@ import { BsAlexa, BsFullscreen, BsFullscreenExit } from "react-icons/bs";
 import OpenSeadragon from "openseadragon";
 import { DeepViewerProps, ImageMeta } from "@/types";
 
-export default function DeepViewer({
-  title,
-  id,
-}: DeepViewerProps) {
+export default function DeepViewer({ title, id }: DeepViewerProps) {
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState<number>(1);
-  const [center, setCenter] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [center, setCenter] = useState<{ x: number; y: number }>({
+    x: 0,
+    y: 0,
+  });
   const [imageMeta, setImageMeta] = useState<ImageMeta | null>(null);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
@@ -102,15 +102,24 @@ export default function DeepViewer({
     <>
       <h3>{title}</h3>
       <div className="mb-4">
-        Explore every detail, without waiting: our Deep Viewer splits massive images into many small tiles, loading only what you need at your current view. Zoom, pan, or select areas, in which the system will quickly fetch just the right pieces, so you see crisp detail fast, without overloading your browser or network. It is designed to be fast, responsive, and intuitive, so you can spend more time discovering and less time waiting.
+        Explore every detail, without waiting: our Deep Viewer splits massive
+        images into many small tiles, loading only what you need at your current
+        view. Zoom, pan, or select areas, in which the system will quickly fetch
+        just the right pieces, so you see crisp detail fast, without overloading
+        your browser or network. It is designed to be fast, responsive, and
+        intuitive, so you can spend more time discovering and less time waiting.
       </div>
 
       <div className="deep-viewer-container position-relative" ref={wrapperRef}>
-        <div className="w-100 h-400px my-4 h-md-500px">
-          <div ref={containerRef} className="w-100 h-400px bg-black h-100" />
+        <div
+          className={`w-100 my-4 ${
+            isFullscreen ? "fullscreen-viewer" : "h-400px h-md-500px"
+          }`}
+        >
+          <div ref={containerRef} className="w-100 bg-black h-100" />
         </div>
         {/* Zoom / control buttons */}
-        <div className="zoom-controls-section d-flex flex-column gap-3 flex-md-row">
+        <div className={`zoom-controls-section d-flex flex-column gap-3 flex-md-row ${isFullscreen ? 'position-absolute px-4 pb-4 w-100 left-0 right-0 bottom-0' : ''}`}>
           <div className="zoom-slider-container">
             <span>100%</span>
             <input
