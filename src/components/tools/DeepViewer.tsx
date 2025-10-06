@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import OpenSeadragon from "openseadragon";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "react-bootstrap";
+import { BsAlexa, BsFullscreen, BsFullscreenExit } from "react-icons/bs";
+import OpenSeadragon from "openseadragon";
 import { DeepViewerProps, ImageMeta } from "@/types";
 
 export default function DeepViewer({
@@ -11,13 +12,11 @@ export default function DeepViewer({
 }: DeepViewerProps) {
   const viewerRef = useRef<OpenSeadragon.Viewer | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState<number>(1);
-  const [center, setCenter] = useState<{ x: number; y: number }>({
-    x: 0,
-    y: 0,
-  });
-
+  const [center, setCenter] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [imageMeta, setImageMeta] = useState<ImageMeta | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) return;
@@ -31,13 +30,11 @@ export default function DeepViewer({
   useEffect(() => {
     // only run on client
     if (typeof window === "undefined") return;
-
     if (!imageMeta) return;
     if (!containerRef.current) return;
 
     const viewer = OpenSeadragon({
       element: containerRef.current,
-      showNavigationControl: false,
       tileSources: {
         width: imageMeta.width,
         height: imageMeta.height,
@@ -48,49 +45,67 @@ export default function DeepViewer({
           return `/tiles/${imageMeta.id}/${level}/${x}/${y}.jpg`;
         },
       },
-      showZoomControl: false, // maybe disable built‑in controls if you use your own
+      showZoomControl: false,
       showHomeControl: false,
       showRotationControl: false,
+      showNavigationControl: false,
       autoHideControls: false,
     });
 
     viewerRef.current = viewer;
 
-    // Listen to viewport-change to sync UI
-    viewer.addHandler("viewport-change", () => {
+    const handler = () => {
       const vp = viewer.viewport;
-      const z = vp.getZoom(); // this is the internal zoom factor (logical units)
-      // convert to percent or scale as you prefer
-      const zoomPct = z * 100;
-      setScale(zoomPct / 100); // or setScale(z) depending how you interpret it
-      // Optionally update center / position if needed
+      const z = vp.getZoom();
+      setScale(z);
       const c = vp.getCenter();
       setCenter({ x: c.x, y: c.y });
-    });
+    };
+
+    // Listen to viewport-change to sync UI
+    viewer.addHandler("viewport-change", handler);
 
     return () => {
+      viewer.removeHandler("viewport-change", handler);
       viewer.destroy();
       viewerRef.current = null;
     };
   }, [imageMeta]);
 
-  const handleZoomTo = (percent: number) => {
+  const handleZoomTo = useCallback((percent: number) => {
     if (!viewerRef.current) return;
     const vp = viewerRef.current.viewport;
-    const zoomFactor = percent / 100;
-    vp.zoomTo(zoomFactor, vp.getCenter(), true);
-  };
+    vp.zoomTo(percent / 100, vp.getCenter(), true);
+  }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     if (!viewerRef.current) return;
     viewerRef.current.viewport.goHome();
-  };
+  }, []);
+
+  const toggleFullscreen = useCallback(async () => {
+    if (!wrapperRef.current) return;
+    try {
+      if (!document.fullscreenElement) {
+        await wrapperRef.current.requestFullscreen();
+        setIsFullscreen(true);
+      } else {
+        await document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    } catch (err) {
+      console.error("Fullscreen toggle error:", err);
+    }
+  }, [setIsFullscreen]);
 
   return (
     <>
       <h3>{title}</h3>
-      <div className="mb-4">Explore every detail, without waiting: our Deep Viewer splits massive images into many small tiles, loading only what you need at your current view. Zoom, pan, or select areas, in which the system will quickly fetch just the right pieces, so you see crisp detail fast, without overloading your browser or network. It is designed to be fast, responsive, and intuitive, so you can spend more time discovering and less time waiting.</div>
-      <div className="deep-viewer-container position-relative">
+      <div className="mb-4">
+        Explore every detail, without waiting: our Deep Viewer splits massive images into many small tiles, loading only what you need at your current view. Zoom, pan, or select areas, in which the system will quickly fetch just the right pieces, so you see crisp detail fast, without overloading your browser or network. It is designed to be fast, responsive, and intuitive, so you can spend more time discovering and less time waiting.
+      </div>
+
+      <div className="deep-viewer-container position-relative" ref={wrapperRef}>
         <div className="w-100 h-400px my-4 h-md-500px">
           <div ref={containerRef} className="w-100 h-400px bg-black h-100" />
         </div>
@@ -128,11 +143,32 @@ export default function DeepViewer({
             <span>%</span>
           </div>
           <Button
+            id="full-screen"
+            onClick={toggleFullscreen}
+            size="lg"
+            className="btn btn-info rounded-0 text-uppercase fw-bold text-white d-flex align-items-center justify-content-center gap-2"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? (
+              <>
+                <BsFullscreenExit />
+                Exit Fullscreen
+              </>
+            ) : (
+              <>
+                <BsFullscreen />
+                Fullscreen
+              </>
+            )}
+          </Button>
+          <Button
             id="reset"
             onClick={handleReset}
             size="lg"
-            className="btn btn-danger rounded-0 text-uppercase fw-bold"
+            className="btn btn-danger rounded-0 text-uppercase fw-bold d-flex align-items-center justify-content-center gap-2"
+            title="Reset View"
           >
+            <BsAlexa />
             Reset View
           </Button>
         </div>
