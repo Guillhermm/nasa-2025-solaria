@@ -50,6 +50,12 @@ export default function DeepViewer({ title, id }: DeepViewerProps) {
       showRotationControl: false,
       showNavigationControl: false,
       autoHideControls: false,
+      showNavigator: true,
+      navigatorPosition: "BOTTOM_RIGHT",
+      navigatorSizeRatio: 0.2,
+      navigatorMaintainSizeRatio: false,
+      navigatorBackground: "#000",
+      navigatorOpacity: 0.8,
     });
 
     viewerRef.current = viewer;
@@ -119,7 +125,13 @@ export default function DeepViewer({ title, id }: DeepViewerProps) {
           <div ref={containerRef} className="w-100 bg-black h-100" />
         </div>
         {/* Zoom / control buttons */}
-        <div className={`zoom-controls-section d-flex flex-column gap-3 flex-md-row ${isFullscreen ? 'position-absolute px-4 pb-4 w-100 left-0 right-0 bottom-0' : ''}`}>
+        <div
+          className={`zoom-controls-section d-flex flex-column gap-3 flex-md-row ${
+            isFullscreen
+              ? "position-absolute px-4 pb-4 w-100 left-0 right-0 bottom-0"
+              : ""
+          }`}
+        >
           <div className="zoom-slider-container">
             <span>100%</span>
             <input

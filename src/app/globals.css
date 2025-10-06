@@ -771,6 +771,11 @@ h2 {
   height: 400px;
 }
 
+.openseadragon-container .navigator {
+  right: 12px !important;
+  bottom: 12px !important;
+}
+
 @media (min-width: 768px) {
   .h-md-500px {
     height: 500px;
