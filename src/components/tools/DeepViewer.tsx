@@ -128,7 +128,7 @@ export default function DeepViewer({ title, id }: DeepViewerProps) {
         </div>
         {/* Zoom / control buttons */}
         <div
-          className={`zoom-controls-section d-flex flex-column gap-3 flex-md-row ${
+          className={`zoom-controls-section d-flex flex-column gap-3 flex-lg-row ${
             isFullscreen
               ? "position-absolute px-4 pb-4 w-100 left-0 right-0 bottom-0"
               : ""

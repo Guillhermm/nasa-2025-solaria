@@ -3,7 +3,7 @@
 import { Fragment, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Container } from "@/components/Container";
-import { ImageMeta } from "../../types";
+import { ImageMeta } from "../../src/types";
 
 const ImageViewerClient = dynamic(() => import("@/components/ImageViewer"), {
   ssr: false,
