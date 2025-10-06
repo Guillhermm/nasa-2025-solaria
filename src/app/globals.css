@@ -232,6 +232,11 @@ body.theme-loaded {
   bottom: 12px !important;
 }
 
+.fullscreen-viewer .openseadragon-container .navigator {
+  right: 1.5rem !important;
+  bottom: 16rem !important;
+}
+
 @media (min-width: 768px) {
   .h-md-500px {
     height: 500px;
@@ -239,6 +244,10 @@ body.theme-loaded {
 
   .h-md-700px {
     height: 700px;
+  }
+
+  .fullscreen-viewer .openseadragon-container .navigator {
+    bottom: 6rem !important;
   }
 }
 
